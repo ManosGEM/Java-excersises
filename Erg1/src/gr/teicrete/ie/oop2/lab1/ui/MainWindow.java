@@ -43,12 +43,11 @@ public class MainWindow extends JFrame {
     private JColorChooser bgColourChooser;
     private JColorChooser fgColourChooser;
 
-    private JButton button;
-    private JButton button2;
-
     private JSlider slider;
 
-    private float pperc=0;
+    private ActionListener buttonSelectedAL;
+    private int pperc = 0;
+
     public MainWindow() {
 
         mainPanel = new JPanel();
@@ -65,9 +64,6 @@ public class MainWindow extends JFrame {
         buttonSelectedTextLabel = new JLabel("ButtonSelected:");
         buttonSelectedLabel = new JLabel();
 
-        button = new JButton("Button 1");
-        button2 = new JButton("Button 2");
-
         slider = new JSlider(JSlider.VERTICAL, 0, 100, 0);
 
         colourPanel.setLayout(new GridLayout(1, 2));
@@ -75,32 +71,40 @@ public class MainWindow extends JFrame {
         ((FlowLayout) colourPanell.getLayout()).setAlignment(FlowLayout.LEFT);
         ((FlowLayout) colourPanelr.getLayout()).setAlignment(FlowLayout.LEFT);
 
-        bgColourPreview.setBackground(button.getBackground());
+        bgColourPreview.setBackground(new JButton().getBackground());
         bgColourPreview.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         bgColourPreview.setOpaque(true);
 
         bgColourPreview.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                Color bgColour = JColorChooser.showDialog(bgColourPreview, "BackGround Colour:", button.getBackground());
+                Color bgColour = JColorChooser.showDialog(bgColourPreview, "BackGround Colour:", Color.white);
 
-                button.setBackground(bgColour);
-                bgColourPreview.setBackground(button.getBackground());
+                bgColourPreview.setBackground(bgColour);
+                for(int i=0;i<mainPanel.getComponentCount();i++){
+                    mainPanel.getComponent(i).setBackground(bgColour);
+                }
+                mainPanel.revalidate();
+                mainPanel.repaint();
             }
         });
 
         colourPanelr.add(bgColourLabel);
         colourPanelr.add(bgColourPreview);
 
-        fgColourPreview.setBackground(button.getForeground());
+        fgColourPreview.setBackground(new JButton().getForeground());
         fgColourPreview.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         fgColourPreview.setOpaque(true);
 
         fgColourPreview.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                Color fgColour = JColorChooser.showDialog(fgColourPreview, "Foreground Colour:", button.getForeground());
+                Color fgColour = JColorChooser.showDialog(fgColourPreview, "Foreground Colour:", Color.white);
 
-                button.setForeground(fgColour);
-                fgColourPreview.setBackground(button.getForeground());
+                fgColourPreview.setBackground(fgColour);
+                for(int i=0;i<mainPanel.getComponentCount();i++){
+                    mainPanel.getComponent(i).setForeground(fgColour);
+                }
+                mainPanel.revalidate();
+                mainPanel.repaint();
             }
         });
 
@@ -121,26 +125,17 @@ public class MainWindow extends JFrame {
 
         ((FlowLayout) mainPanel.getLayout()).setAlignment(FlowLayout.LEFT);
 
-        button.addActionListener(new ActionListener() {
+        buttonSelectedAL = new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
 
-                buttonSelectedLabel.setText(button.getText());
-                System.out.println("size: "+button.getSize());
+                Object source = e.getSource();
+
+                if (source instanceof JButton) {
+                    buttonSelectedLabel.setText(((JButton) source).getText());
+                }
             }
-        });
-
-        button2.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-
-                buttonSelectedLabel.setText(button2.getText());
-                
-            }
-        });
-
-        mainPanel.add(button);
-        mainPanel.add(button2);
+        };
 
         add(mainPanel, BorderLayout.CENTER);
 
@@ -159,25 +154,38 @@ public class MainWindow extends JFrame {
         slider.setPaintLabels(true);
         slider.setSnapToTicks(true);
 
-        slider.addChangeListener(new ChangeListener(){
-            public void stateChanged(ChangeEvent e){
-                JSlider source = (JSlider)e.getSource();
-                if (!source.getValueIsAdjusting()){
-                    float perc = source.getValue();
-                    
-                    System.out.println("prefSize: "+button.getPreferredSize());
-                    
-                    if(perc>pperc){
-                        button.setSize(new Dimension((int)(button.getPreferredSize().getWidth()*(1+(perc/100.0f))),(int)(button.getPreferredSize().getHeight()*(1+(perc/100.0f)))));
+        slider.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                if (!source.getValueIsAdjusting()) {
+                    int perc = source.getValue();
+
+                    if (perc > pperc) {
+                        
+                        for(int i =1; i<=perc-pperc; i++ ){
+                            JButton button = new JButton("Button "+(pperc+i));
+                            
+                            button.addActionListener(buttonSelectedAL);
+                            button.setBackground(bgColourPreview.getBackground());
+                            button.setForeground(fgColourPreview.getBackground());
+                            mainPanel.add(button);
+                        }
+                        
                         pperc = perc;
-                    }else if(perc<pperc){
-                        button.setSize(new Dimension((int)(button.getWidth()*(1-((pperc-perc)/100.0f))),(int)(button.getHeight()*(1-((pperc-perc)/100.0f)))));
+                    } else if (perc < pperc) {
+                        
+                        for(int j= pperc; j>perc;j--){
+                            mainPanel.remove(mainPanel.getComponent(mainPanel.getComponentCount()-1));
+                        }
                         pperc = perc;
-                    }     
+                    }
+                    
+                    mainPanel.revalidate();
+                    mainPanel.repaint();
                 }
             }
         });
-        
+
         sliderPanel.add(slider);
 
         add(sliderPanel, BorderLayout.EAST);
