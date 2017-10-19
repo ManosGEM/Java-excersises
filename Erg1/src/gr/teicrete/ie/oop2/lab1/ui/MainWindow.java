@@ -24,6 +24,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.font.TextAttribute;
 import java.util.Map;
+import javax.swing.UIManager;
 
 /**
  *
@@ -152,6 +153,7 @@ public class MainWindow extends JFrame {
 
                     if (mainPanel.getComponent(i) instanceof JButton) {
                         if (((JButton) mainPanel.getComponent(i)).getText() == buttonSelectedLabel.getText()) {
+                            //((JButton) mainPanel.getComponent(i)).setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
                             ((JButton) mainPanel.getComponent(i)).setBorderPainted(false);
                         }
                     }
@@ -163,6 +165,7 @@ public class MainWindow extends JFrame {
 
                     if (mainPanel.getComponent(i) instanceof JButton) {
                         if (((JButton) mainPanel.getComponent(i)).getText() == buttonSelectedLabel.getText()) {
+                            //((JButton) mainPanel.getComponent(i)).setBorder(UIManager.getBorder("Button.border"));
                             ((JButton) mainPanel.getComponent(i)).setBorderPainted(true);
                         }
                     }
