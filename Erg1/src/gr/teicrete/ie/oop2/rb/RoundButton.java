@@ -32,6 +32,7 @@ public class RoundButton extends JButton {
         this("");
     }
     
+    //overriding paintComponent method
     @Override
     protected void paintComponent(Graphics g) {
         if (getModel().isArmed()) {
